@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Administrador - Venta Celulares</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/login.css}">
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-card panel-card">
+
+        <div class="login-header">
+
+            <div class="logo">
+                📱
+            </div>
+
+            <h1>Venta Celulares</h1>
+
+            <p>Panel del Administrador</p>
+
+        </div>
+
+
+        <div class="user-info">
+
+            <div class="info-title">
+                👤 Información del usuario
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Nombre
+                </span>
+
+                <span class="info-value"
+                      th:text="${usuario.nombreCompleto}">
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Correo
+                </span>
+
+                <span class="info-value"
+                      th:text="${usuario.correo}">
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    ID Persona
+                </span>
+
+                <span class="info-value"
+                      th:text="${usuario.idPersona}">
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <button
+                class="login-button logout-button"
+                onclick="location.href='/logout'">
+
+            Cerrar sesión
+
+        </button>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

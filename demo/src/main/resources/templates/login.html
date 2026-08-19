@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Venta Celulares</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/login.css}">
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <div class="login-header">
+
+            <div class="logo">
+                📱
+            </div>
+
+            <h1>Venta Celulares</h1>
+
+            <p>
+                Inicia sesión para continuar
+            </p>
+
+        </div>
+
+
+        <form action="/login" method="post">
+
+            <div class="input-group">
+
+                <label for="correo">
+                    Correo electrónico
+                </label>
+
+                <div class="input-box">
+
+                    <span>✉</span>
+
+                    <input
+                            type="email"
+                            id="correo"
+                            name="correo"
+                            placeholder="Ingresa tu correo"
+                            required>
+
+                </div>
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="contrasena">
+                    Contraseña
+                </label>
+
+                <div class="input-box">
+
+                    <span>🔒</span>
+
+                    <input
+                            type="password"
+                            id="contrasena"
+                            name="contrasena"
+                            placeholder="Ingresa tu contraseña"
+                            required>
+
+                    <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="mostrarContrasena()">
+
+                        👁
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                    th:if="${error}"
+                    class="error-message"
+                    th:text="${error}">
+            </div>
+
+
+            <button
+                    type="submit"
+                    class="login-button">
+
+                Iniciar sesión
+
+            </button>
+
+        </form>
+
+
+        <div class="login-footer">
+
+            Sistema de gestión · Venta de celulares
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function mostrarContrasena() {
+
+        const input =
+            document.getElementById("contrasena");
+
+        const boton =
+            document.querySelector(".toggle-password");
+
+
+        if (input.type === "password") {
+
+            input.type = "text";
+
+            boton.textContent = "🙈";
+
+        } else {
+
+            input.type = "password";
+
+            boton.textContent = "👁";
+        }
+    }
+
+</script>
+
+</body>
+
+</html>

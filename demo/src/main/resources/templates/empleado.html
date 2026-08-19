@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Empleado - Venta Celulares</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/login.css}">
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-card panel-card empleado-panel">
+
+        <div class="login-header">
+
+            <div class="logo">
+                📱
+            </div>
+
+            <h1>Venta Celulares</h1>
+
+            <p>Panel del Empleado</p>
+
+        </div>
+
+
+        <div class="user-info">
+
+            <div class="info-title">
+                👤 Usuario que inició sesión
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Correo
+                </span>
+
+                <span class="info-value"
+                      th:text="${usuario.correo}">
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-section">
+
+            <div class="info-title">
+                👥 Usuarios del sistema
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+
+                        <th>ID Persona</th>
+
+                        <th>Tipo Documento</th>
+
+                        <th>Correo</th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="u : ${usuarios}">
+
+                        <td th:text="${u.idPersona}">
+                        </td>
+
+                        <td th:text="${u.tipoDocumento}">
+                        </td>
+
+                        <td th:text="${u.correo}">
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <button
+                class="login-button logout-button"
+                onclick="location.href='/logout'">
+
+            Cerrar sesión
+
+        </button>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
