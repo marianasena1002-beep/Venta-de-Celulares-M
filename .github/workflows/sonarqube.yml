@@ -1,37 +1,14 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow helps you trigger a SonarQube analysis of your code and populates
-# GitHub Code Scanning alerts with the vulnerabilities found.
-# (this feature is available starting from SonarQube 9.7, Developer Edition and above)
-
-# 1. Make sure you add a valid GitHub configuration to your SonarQube
-#    (Administration > DevOps platforms > GitHub)
-
-# 2. Import your project on SonarQube
-#    * Add your repository as a new project by clicking "Create project"
-#      from your homepage.
-
-# 3. Select GitHub Actions as your CI and follow the tutorial
-#    * a. Generate a new token and add it to your GitHub repository's secrets
-#         using the name SONAR_TOKEN
-#
-#    * b. Copy/paste your SonarQube host URL to your GitHub repository's
-#         secrets using the name SONAR_HOST_URL
-#
-#    * c. Copy/paste the project Key into the args parameter below
-#
-# Feel free to take a look at the SonarQube documentation.
-
 name: SonarQube analysis
 
 on:
   push:
-    branches: [ "main", "principal" ]
+    branches:
+      - main
+      - principal
   pull_request:
-    branches: [ "main", "principal" ]
+    branches:
+      - main
+      - principal
   workflow_dispatch:
 
 permissions:
@@ -43,36 +20,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      # Descarga el código del repositorio
-      - name: Descargar código
+      - name: Checkout source code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Ejecuta el análisis de SonarQube
-      - name: Analizar con SonarQube
+      - name: Analyze with SonarQube
         uses: SonarSource/sonarqube-scan-action@7295e71c9583053f5bf40e9d4068a0c974603ec8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
-
         with:
           args: >
             -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M
             -Dsonar.organization=marianasena1002-beep
-
-            # Directorios donde está el código fuente.
-            # Si tu código está en la raíz, Sonar analiza el proyecto completo.
-            #-Dsonar.sources=.
-
-            # Directorio base del proyecto.
-            #-Dsonar.projectBaseDir=.
-
-            # Directorios de pruebas.
-            # Actívalo solamente si tienes una carpeta específica de tests.
-            #-Dsonar.tests=.
-
-            # Activa información detallada para depuración.
-            #-Dsonar.verbose=true
