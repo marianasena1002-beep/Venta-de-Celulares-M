@@ -20,18 +20,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Analyze with SonarQube
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
         with:
-          args: >
-            -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M
-            -Dsonar.organization=marianasena1002-beep
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Compilar proyecto
+        run: mvn clean verify -DskipTests
+
+      - name: Analizar con SonarQube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.token=$SONAR_TOKEN
