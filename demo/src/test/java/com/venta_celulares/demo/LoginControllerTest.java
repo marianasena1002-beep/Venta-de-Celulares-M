@@ -1,6 +1,5 @@
-package com.venta_celulares.demo;
+package com.venta_celulares.demo.controller;
 
-import com.venta_celulares.demo.controller.LoginController;
 import com.venta_celulares.demo.model.Usuario;
 import com.venta_celulares.demo.service.UsuarioService;
 
@@ -50,13 +49,13 @@ class LoginControllerTest {
     }
 
     @Test
-    void debeMostrarLogin() {
-        assertEquals("login", loginController.login());
+    void debeMostrarInicio() {
+        assertEquals("login", loginController.inicio());
     }
 
     @Test
-    void debeMostrarLoginDesdeInicio() {
-        assertEquals("login", loginController.inicio());
+    void debeMostrarLogin() {
+        assertEquals("login", loginController.login());
     }
 
     @Test
@@ -111,13 +110,15 @@ class LoginControllerTest {
     @Test
     void debeRedirigirAdministrador() {
 
+        List<String> roles = List.of("Administrador");
+
         when(usuarioService.iniciarSesion(
                 "usuario@gmail.com",
                 "123456"
         )).thenReturn(Optional.of(usuario));
 
         when(usuarioService.obtenerRoles(usuario))
-                .thenReturn(List.of("Administrador"));
+                .thenReturn(roles);
 
         String resultado = loginController.procesarLogin(
                 "usuario@gmail.com",
@@ -138,7 +139,7 @@ class LoginControllerTest {
 
         verify(session).setAttribute(
                 "roles",
-                List.of("Administrador")
+                roles
         );
     }
 
@@ -247,7 +248,7 @@ class LoginControllerTest {
         )).thenReturn(Optional.of(usuario));
 
         when(usuarioService.obtenerRoles(usuario))
-                .thenReturn(List.of("RolInexistente"));
+                .thenReturn(List.of("OtroRol"));
 
         String resultado = loginController.procesarLogin(
                 "usuario@gmail.com",
@@ -329,8 +330,10 @@ class LoginControllerTest {
         when(session.getAttribute("usuario"))
                 .thenReturn(usuario);
 
+        List<Usuario> usuarios = List.of(usuario);
+
         when(usuarioService.listarUsuarios())
-                .thenReturn(List.of(usuario));
+                .thenReturn(usuarios);
 
         String resultado =
                 loginController.empleado(
@@ -350,7 +353,7 @@ class LoginControllerTest {
 
         verify(model).addAttribute(
                 "usuarios",
-                List.of(usuario)
+                usuarios
         );
     }
 
