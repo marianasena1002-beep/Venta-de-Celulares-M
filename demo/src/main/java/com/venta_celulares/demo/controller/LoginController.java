@@ -21,7 +21,6 @@ public class LoginController {
     @Autowired
     private UsuarioService usuarioService;
 
-
     // =====================================================
     // INICIO
     // =====================================================
@@ -30,7 +29,6 @@ public class LoginController {
     public String inicio() {
         return "login";
     }
-
 
     // =====================================================
     // LOGIN
@@ -41,22 +39,15 @@ public class LoginController {
         return "login";
     }
 
-
     // =====================================================
     // PROCESAR LOGIN
     // =====================================================
 
     @PostMapping("/login")
     public String procesarLogin(
-
-            @RequestParam("correo")
-            String correo,
-
-            @RequestParam("contrasena")
-            String contrasena,
-
+            @RequestParam("correo") String correo,
+            @RequestParam("contrasena") String contrasena,
             HttpSession session,
-
             Model model
     ) {
 
@@ -65,7 +56,6 @@ public class LoginController {
                         correo,
                         contrasena
                 );
-
 
         // =================================================
         // USUARIO NO ENCONTRADO
@@ -81,9 +71,7 @@ public class LoginController {
             return "login";
         }
 
-
         Usuario usuario = resultado.get();
-
 
         // =================================================
         // OBTENER ROLES
@@ -91,7 +79,6 @@ public class LoginController {
 
         List<String> roles =
                 usuarioService.obtenerRoles(usuario);
-
 
         // =================================================
         // SIN ROL
@@ -107,7 +94,6 @@ public class LoginController {
             return "login";
         }
 
-
         // =================================================
         // GUARDAR SESIÓN
         // =================================================
@@ -122,19 +108,15 @@ public class LoginController {
                 roles
         );
 
-
         String rolPrincipal = roles.get(0);
-
 
         // =================================================
         // ADMINISTRADOR
         // =================================================
 
         if (rolPrincipal.equalsIgnoreCase("Administrador")) {
-
             return "redirect:/administrador";
         }
-
 
         // =================================================
         // EMPLEADO / VENDEDOR
@@ -146,26 +128,21 @@ public class LoginController {
             return "redirect:/empleado";
         }
 
-
         // =================================================
         // PROVEEDOR
         // =================================================
 
         if (rolPrincipal.equalsIgnoreCase("Proveedor")) {
-
             return "redirect:/proveedor";
         }
-
 
         // =================================================
         // CLIENTE
         // =================================================
 
         if (rolPrincipal.equalsIgnoreCase("Cliente")) {
-
             return "redirect:/cliente";
         }
-
 
         // =================================================
         // ROL NO CONFIGURADO
@@ -179,7 +156,6 @@ public class LoginController {
         return "login";
     }
 
-
     // =====================================================
     // PANEL ADMINISTRADOR
     // =====================================================
@@ -187,7 +163,8 @@ public class LoginController {
     @GetMapping("/administrador")
     public String administrador(
             HttpSession session,
-            Model model) {
+            Model model
+    ) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -204,7 +181,6 @@ public class LoginController {
         return "administrador";
     }
 
-
     // =====================================================
     // PANEL EMPLEADO
     // =====================================================
@@ -212,7 +188,8 @@ public class LoginController {
     @GetMapping("/empleado")
     public String empleado(
             HttpSession session,
-            Model model) {
+            Model model
+    ) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -234,7 +211,6 @@ public class LoginController {
         return "empleado";
     }
 
-
     // =====================================================
     // PANEL PROVEEDOR
     // =====================================================
@@ -242,7 +218,8 @@ public class LoginController {
     @GetMapping("/proveedor")
     public String proveedor(
             HttpSession session,
-            Model model) {
+            Model model
+    ) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -259,7 +236,6 @@ public class LoginController {
         return "proveedor";
     }
 
-
     // =====================================================
     // PANEL CLIENTE
     // =====================================================
@@ -267,7 +243,8 @@ public class LoginController {
     @GetMapping("/cliente")
     public String cliente(
             HttpSession session,
-            Model model) {
+            Model model
+    ) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -283,7 +260,6 @@ public class LoginController {
 
         return "cliente";
     }
-
 
     // =====================================================
     // CERRAR SESIÓN
