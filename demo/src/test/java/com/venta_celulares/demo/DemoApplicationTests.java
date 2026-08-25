@@ -8,6 +8,6 @@ class DemoApplicationTests {
 
     @Test
     void contextLoads() {
-        System.out.println("Prueba ejecutada correctamente");
+        // Verifica que la aplicación Spring Boot cargue correctamente
     }
 }
