@@ -5,214 +5,451 @@ import com.venta_celulares.demo.service.UsuarioService;
 
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
 
-@Controller
-public class LoginController {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-    @Autowired
+class LoginControllerTest {
+
+    @Mock
     private UsuarioService usuarioService;
 
-    private static final String ERROR = "error";
+    @Mock
+    private HttpSession session;
 
-    // =====================================================
-    // INICIO
-    // =====================================================
+    @Mock
+    private Model model;
 
-    @GetMapping("/")
-    public String inicio() {
-        return "login";
+    @InjectMocks
+    private LoginController loginController;
+
+    private Usuario usuario;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        usuario = new Usuario();
+        usuario.setTipoDocumento("CC");
+        usuario.setIdPersona(1);
+        usuario.setPrimerNombre("Usuario");
+        usuario.setPrimerApellido("Prueba");
+        usuario.setCorreo("usuario@gmail.com");
+        usuario.setContrasena("123456");
     }
 
-    // =====================================================
-    // LOGIN
-    // =====================================================
-
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @Test
+    void debeMostrarInicio() {
+        assertEquals("login", loginController.inicio());
     }
 
-    // =====================================================
-    // PROCESAR LOGIN
-    // =====================================================
+    @Test
+    void debeMostrarLogin() {
+        assertEquals("login", loginController.login());
+    }
 
-    @PostMapping("/login")
-    public String procesarLogin(
-            @RequestParam("correo") String correo,
-            @RequestParam("contrasena") String contrasena,
-            HttpSession session,
-            Model model) {
+    @Test
+    void debeRechazarUsuarioNoEncontrado() {
 
-        Optional<Usuario> resultado =
-                usuarioService.iniciarSesion(correo, contrasena);
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.empty());
 
-        // Usuario no encontrado
-        if (resultado.isEmpty()) {
-            model.addAttribute(
-                    ERROR,
-                    "Correo o contraseña incorrectos"
-            );
-            return "login";
-        }
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
 
-        Usuario usuario = resultado.get();
+        assertEquals("login", resultado);
 
-        // Obtener roles
-        List<String> roles =
-                usuarioService.obtenerRoles(usuario);
+        verify(model).addAttribute(
+                "error",
+                "Correo o contraseña incorrectos"
+        );
+    }
 
-        // Usuario sin rol
-        if (roles.isEmpty()) {
-            model.addAttribute(
-                    ERROR,
-                    "El usuario no tiene un rol activo"
-            );
-            return "login";
-        }
+    @Test
+    void debeRechazarUsuarioSinRol() {
 
-        // Guardar usuario y roles en sesión
-        session.setAttribute("usuario", usuario);
-        session.setAttribute("roles", roles);
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.of(usuario));
 
-        String rolPrincipal = roles.get(0);
+        when(usuarioService.obtenerRoles(usuario))
+                .thenReturn(List.of());
 
-        // Administrador
-        if (rolPrincipal.equalsIgnoreCase("Administrador")) {
-            return "redirect:/administrador";
-        }
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
 
-        // Empleado o vendedor
-        if (rolPrincipal.equalsIgnoreCase("Empleado")
-                || rolPrincipal.equalsIgnoreCase("Vendedor")) {
-            return "redirect:/empleado";
-        }
+        assertEquals("login", resultado);
 
-        // Proveedor
-        if (rolPrincipal.equalsIgnoreCase("Proveedor")) {
-            return "redirect:/proveedor";
-        }
+        verify(model).addAttribute(
+                "error",
+                "El usuario no tiene un rol activo"
+        );
+    }
 
-        // Cliente
-        if (rolPrincipal.equalsIgnoreCase("Cliente")) {
-            return "redirect:/cliente";
-        }
+    @Test
+    void debeRedirigirAdministrador() {
 
-        // Rol no configurado
-        model.addAttribute(
-                ERROR,
+        List<String> roles = List.of("Administrador");
+
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.of(usuario));
+
+        when(usuarioService.obtenerRoles(usuario))
+                .thenReturn(roles);
+
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
+
+        assertEquals(
+                "redirect:/administrador",
+                resultado
+        );
+
+        verify(session).setAttribute(
+                "usuario",
+                usuario
+        );
+
+        verify(session).setAttribute(
+                "roles",
+                roles
+        );
+    }
+
+    @Test
+    void debeRedirigirEmpleado() {
+
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.of(usuario));
+
+        when(usuarioService.obtenerRoles(usuario))
+                .thenReturn(List.of("Empleado"));
+
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
+
+        assertEquals(
+                "redirect:/empleado",
+                resultado
+        );
+    }
+
+    @Test
+    void debeRedirigirVendedor() {
+
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.of(usuario));
+
+        when(usuarioService.obtenerRoles(usuario))
+                .thenReturn(List.of("Vendedor"));
+
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
+
+        assertEquals(
+                "redirect:/empleado",
+                resultado
+        );
+    }
+
+    @Test
+    void debeRedirigirProveedor() {
+
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.of(usuario));
+
+        when(usuarioService.obtenerRoles(usuario))
+                .thenReturn(List.of("Proveedor"));
+
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
+
+        assertEquals(
+                "redirect:/proveedor",
+                resultado
+        );
+    }
+
+    @Test
+    void debeRedirigirCliente() {
+
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.of(usuario));
+
+        when(usuarioService.obtenerRoles(usuario))
+                .thenReturn(List.of("Cliente"));
+
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
+
+        assertEquals(
+                "redirect:/cliente",
+                resultado
+        );
+    }
+
+    @Test
+    void debeRechazarRolNoConfigurado() {
+
+        when(usuarioService.iniciarSesion(
+                "usuario@gmail.com",
+                "123456"
+        )).thenReturn(Optional.of(usuario));
+
+        when(usuarioService.obtenerRoles(usuario))
+                .thenReturn(List.of("OtroRol"));
+
+        String resultado = loginController.procesarLogin(
+                "usuario@gmail.com",
+                "123456",
+                session,
+                model
+        );
+
+        assertEquals("login", resultado);
+
+        verify(model).addAttribute(
+                "error",
                 "El rol del usuario no está configurado"
         );
-
-        return "login";
     }
 
-    // =====================================================
-    // PANEL ADMINISTRADOR
-    // =====================================================
+    @Test
+    void administradorSinSesionDebeVolverAlLogin() {
 
-    @GetMapping("/administrador")
-    public String administrador(
-            HttpSession session,
-            Model model) {
+        when(session.getAttribute("usuario"))
+                .thenReturn(null);
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuario");
+        String resultado =
+                loginController.administrador(
+                        session,
+                        model
+                );
 
-        if (usuario == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("usuario", usuario);
-
-        return "administrador";
+        assertEquals(
+                "redirect:/login",
+                resultado
+        );
     }
 
-    // =====================================================
-    // PANEL EMPLEADO
-    // =====================================================
+    @Test
+    void administradorConSesionDebeMostrarPanel() {
 
-    @GetMapping("/empleado")
-    public String empleado(
-            HttpSession session,
-            Model model) {
+        when(session.getAttribute("usuario"))
+                .thenReturn(usuario);
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuario");
+        String resultado =
+                loginController.administrador(
+                        session,
+                        model
+                );
 
-        if (usuario == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("usuario", usuario);
-
-        model.addAttribute(
-                "usuarios",
-                usuarioService.listarUsuarios()
+        assertEquals(
+                "administrador",
+                resultado
         );
 
-        return "empleado";
+        verify(model).addAttribute(
+                "usuario",
+                usuario
+        );
     }
 
-    // =====================================================
-    // PANEL PROVEEDOR
-    // =====================================================
+    @Test
+    void empleadoSinSesionDebeVolverAlLogin() {
 
-    @GetMapping("/proveedor")
-    public String proveedor(
-            HttpSession session,
-            Model model) {
+        when(session.getAttribute("usuario"))
+                .thenReturn(null);
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuario");
+        String resultado =
+                loginController.empleado(
+                        session,
+                        model
+                );
 
-        if (usuario == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("usuario", usuario);
-
-        return "proveedor";
+        assertEquals(
+                "redirect:/login",
+                resultado
+        );
     }
 
-    // =====================================================
-    // PANEL CLIENTE
-    // =====================================================
+    @Test
+    void empleadoConSesionDebeMostrarPanel() {
 
-    @GetMapping("/cliente")
-    public String cliente(
-            HttpSession session,
-            Model model) {
+        when(session.getAttribute("usuario"))
+                .thenReturn(usuario);
 
-        Usuario usuario =
-                (Usuario) session.getAttribute("usuario");
+        List<Usuario> usuarios = List.of(usuario);
 
-        if (usuario == null) {
-            return "redirect:/login";
-        }
+        when(usuarioService.listarUsuarios())
+                .thenReturn(usuarios);
 
-        model.addAttribute("usuario", usuario);
+        String resultado =
+                loginController.empleado(
+                        session,
+                        model
+                );
 
-        return "cliente";
+        assertEquals(
+                "empleado",
+                resultado
+        );
+
+        verify(model).addAttribute(
+                "usuario",
+                usuario
+        );
+
+        verify(model).addAttribute(
+                "usuarios",
+                usuarios
+        );
     }
 
-    // =====================================================
-    // CERRAR SESIÓN
-    // =====================================================
+    @Test
+    void proveedorSinSesionDebeVolverAlLogin() {
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
+        when(session.getAttribute("usuario"))
+                .thenReturn(null);
 
-        session.invalidate();
+        String resultado =
+                loginController.proveedor(
+                        session,
+                        model
+                );
 
-        return "redirect:/login";
+        assertEquals(
+                "redirect:/login",
+                resultado
+        );
+    }
+
+    @Test
+    void proveedorConSesionDebeMostrarPanel() {
+
+        when(session.getAttribute("usuario"))
+                .thenReturn(usuario);
+
+        String resultado =
+                loginController.proveedor(
+                        session,
+                        model
+                );
+
+        assertEquals(
+                "proveedor",
+                resultado
+        );
+
+        verify(model).addAttribute(
+                "usuario",
+                usuario
+        );
+    }
+
+    @Test
+    void clienteSinSesionDebeVolverAlLogin() {
+
+        when(session.getAttribute("usuario"))
+                .thenReturn(null);
+
+        String resultado =
+                loginController.cliente(
+                        session,
+                        model
+                );
+
+        assertEquals(
+                "redirect:/login",
+                resultado
+        );
+    }
+
+    @Test
+    void clienteConSesionDebeMostrarPanel() {
+
+        when(session.getAttribute("usuario"))
+                .thenReturn(usuario);
+
+        String resultado =
+                loginController.cliente(
+                        session,
+                        model
+                );
+
+        assertEquals(
+                "cliente",
+                resultado
+        );
+
+        verify(model).addAttribute(
+                "usuario",
+                usuario
+        );
+    }
+
+    @Test
+    void cerrarSesionDebeInvalidarSesion() {
+
+        String resultado =
+                loginController.logout(session);
+
+        assertEquals(
+                "redirect:/login",
+                resultado
+        );
+
+        verify(session).invalidate();
     }
 }
