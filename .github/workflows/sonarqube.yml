@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - principal
+
   pull_request:
     branches:
       - main
       - principal
+
   workflow_dispatch:
 
 permissions:
@@ -20,26 +22,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Descargar código
-        uses: actions/checkout@v4
-
-      - name: Configurar Java
-        uses: actions/setup-java@v4
+      - name: Checkout source code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          distribution: temurin
-          java-version: '17'
-          cache: maven
+          fetch-depth: 0
 
-      - name: Compilar proyecto
-        run: mvn clean verify -DskipTests
-
-      - name: Analizar con SonarQube
+      - name: Analyze with SonarQube
+        uses: SonarSource/sonarqube-scan-action@v6.0.0
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.token=$SONAR_TOKEN
+          SONAR_HOST_URL: https://sonarcloud.io
+
+        with:
+          args: >
+            -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M
+            -Dsonar.organization=marianasena1002-beep
