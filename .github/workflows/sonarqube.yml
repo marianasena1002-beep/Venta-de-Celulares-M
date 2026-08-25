@@ -1,53 +1,53 @@
 name: Análisis de SonarQube
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
 
-pull_request:
-branches:
-- main
+  pull_request:
+    branches:
+      - main
 
-workflow_dispatch:
+  workflow_dispatch:
 
 permissions:
-contents: read
-pull-requests: read
+  contents: read
+  pull-requests: read
 
 jobs:
-analysis:
-runs-on: ubuntu-latest
+  analysis:
+    runs-on: ubuntu-latest
 
-```
-steps:
-  - name: Consulta el código fuente
-    uses: actions/checkout@v4
-    with:
-      fetch-depth: 0
+    steps:
+      - name: Consulta el código fuente
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  - name: Configurar Java
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '20'
-      cache: maven
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '20'
+          cache: maven
 
-  - name: Ejecutar pruebas y generar cobertura
-    working-directory: demo
-    run: mvn clean test
+      - name: Ejecutar pruebas y generar cobertura
+        working-directory: demo
+        run: mvn clean test
 
-  - name: Analizar con SonarQube
-    uses: SonarSource/sonarqube-scan-action@v6
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_HOST_URL: https://sonarcloud.io
+      - name: Analizar con SonarQube
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
 
-    with:
-      projectBaseDir: demo
-      args: >
-        -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M
-        -Dsonar.organization=marianasena1002-beep
-        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-```
+        with:
+          projectBaseDir: demo
+          args: >
+            -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M
+            -Dsonar.organization=marianasena1002-beep
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.java.libraries=target/dependency/*.jar
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
