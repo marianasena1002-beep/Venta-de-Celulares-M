@@ -18,6 +18,8 @@ import java.util.Optional;
 @Controller
 public class LoginController {
 
+    private static final String ERROR = "error";
+
     @Autowired
     private UsuarioService usuarioService;
 
@@ -48,14 +50,10 @@ public class LoginController {
             @RequestParam("correo") String correo,
             @RequestParam("contrasena") String contrasena,
             HttpSession session,
-            Model model
-    ) {
+            Model model) {
 
         Optional<Usuario> resultado =
-                usuarioService.iniciarSesion(
-                        correo,
-                        contrasena
-                );
+                usuarioService.iniciarSesion(correo, contrasena);
 
         // =================================================
         // USUARIO NO ENCONTRADO
@@ -64,7 +62,7 @@ public class LoginController {
         if (resultado.isEmpty()) {
 
             model.addAttribute(
-                    "error",
+                    ERROR,
                     "Correo o contraseña incorrectos"
             );
 
@@ -87,7 +85,7 @@ public class LoginController {
         if (roles.isEmpty()) {
 
             model.addAttribute(
-                    "error",
+                    ERROR,
                     "El usuario no tiene un rol activo"
             );
 
@@ -98,15 +96,8 @@ public class LoginController {
         // GUARDAR SESIÓN
         // =================================================
 
-        session.setAttribute(
-                "usuario",
-                usuario
-        );
-
-        session.setAttribute(
-                "roles",
-                roles
-        );
+        session.setAttribute("usuario", usuario);
+        session.setAttribute("roles", roles);
 
         String rolPrincipal = roles.get(0);
 
@@ -149,7 +140,7 @@ public class LoginController {
         // =================================================
 
         model.addAttribute(
-                "error",
+                ERROR,
                 "El rol del usuario no está configurado"
         );
 
@@ -163,8 +154,7 @@ public class LoginController {
     @GetMapping("/administrador")
     public String administrador(
             HttpSession session,
-            Model model
-    ) {
+            Model model) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -173,10 +163,7 @@ public class LoginController {
             return "redirect:/login";
         }
 
-        model.addAttribute(
-                "usuario",
-                usuario
-        );
+        model.addAttribute("usuario", usuario);
 
         return "administrador";
     }
@@ -188,8 +175,7 @@ public class LoginController {
     @GetMapping("/empleado")
     public String empleado(
             HttpSession session,
-            Model model
-    ) {
+            Model model) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -198,10 +184,7 @@ public class LoginController {
             return "redirect:/login";
         }
 
-        model.addAttribute(
-                "usuario",
-                usuario
-        );
+        model.addAttribute("usuario", usuario);
 
         model.addAttribute(
                 "usuarios",
@@ -218,8 +201,7 @@ public class LoginController {
     @GetMapping("/proveedor")
     public String proveedor(
             HttpSession session,
-            Model model
-    ) {
+            Model model) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -228,10 +210,7 @@ public class LoginController {
             return "redirect:/login";
         }
 
-        model.addAttribute(
-                "usuario",
-                usuario
-        );
+        model.addAttribute("usuario", usuario);
 
         return "proveedor";
     }
@@ -243,8 +222,7 @@ public class LoginController {
     @GetMapping("/cliente")
     public String cliente(
             HttpSession session,
-            Model model
-    ) {
+            Model model) {
 
         Usuario usuario =
                 (Usuario) session.getAttribute("usuario");
@@ -253,10 +231,7 @@ public class LoginController {
             return "redirect:/login";
         }
 
-        model.addAttribute(
-                "usuario",
-                usuario
-        );
+        model.addAttribute("usuario", usuario);
 
         return "cliente";
     }
