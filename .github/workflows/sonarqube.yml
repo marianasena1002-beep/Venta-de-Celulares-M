@@ -26,13 +26,12 @@ jobs:
         working-directory: demo
 
     steps:
-      # 1. Descargar el código
+
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. Configurar Java
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
@@ -40,11 +39,9 @@ jobs:
           java-version: '20'
           cache: maven
 
-      # 3. Ejecutar pruebas y generar reporte JaCoCo
       - name: Run tests and generate coverage
         run: mvn clean verify
 
-      # 4. Analizar con SonarCloud
       - name: SonarQube analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -52,6 +49,7 @@ jobs:
         run: |
           mvn sonar:sonar \
             -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M \
+            -Dsonar.organization=marianasena1002-beep \
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
