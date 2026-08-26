@@ -7,9 +7,12 @@ import jakarta.servlet.http.HttpSession;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.ui.Model;
 
 import java.util.List;
@@ -19,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class LoginControllerTest {
 
     @Mock
@@ -37,9 +41,8 @@ class LoginControllerTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
         usuario = new Usuario();
+
         usuario.setTipoDocumento("CC");
         usuario.setIdPersona(1);
         usuario.setPrimerNombre("Usuario");
@@ -48,15 +51,27 @@ class LoginControllerTest {
         usuario.setContrasena("123456");
     }
 
+    // =====================================================
+    // INICIO Y LOGIN
+    // =====================================================
+
     @Test
     void debeMostrarInicio() {
-        assertEquals("login", loginController.inicio());
+        String resultado = loginController.inicio();
+
+        assertEquals("login", resultado);
     }
 
     @Test
     void debeMostrarLogin() {
-        assertEquals("login", loginController.login());
+        String resultado = loginController.login();
+
+        assertEquals("login", resultado);
     }
+
+    // =====================================================
+    // LOGIN INCORRECTO
+    // =====================================================
 
     @Test
     void debeRechazarUsuarioNoEncontrado() {
@@ -80,6 +95,10 @@ class LoginControllerTest {
                 "Correo o contraseña incorrectos"
         );
     }
+
+    // =====================================================
+    // USUARIO SIN ROL
+    // =====================================================
 
     @Test
     void debeRechazarUsuarioSinRol() {
@@ -106,6 +125,10 @@ class LoginControllerTest {
                 "El usuario no tiene un rol activo"
         );
     }
+
+    // =====================================================
+    // ADMINISTRADOR
+    // =====================================================
 
     @Test
     void debeRedirigirAdministrador() {
@@ -143,6 +166,10 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // EMPLEADO
+    // =====================================================
+
     @Test
     void debeRedirigirEmpleado() {
 
@@ -166,6 +193,10 @@ class LoginControllerTest {
                 resultado
         );
     }
+
+    // =====================================================
+    // VENDEDOR
+    // =====================================================
 
     @Test
     void debeRedirigirVendedor() {
@@ -191,6 +222,10 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // PROVEEDOR
+    // =====================================================
+
     @Test
     void debeRedirigirProveedor() {
 
@@ -215,6 +250,10 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // CLIENTE
+    // =====================================================
+
     @Test
     void debeRedirigirCliente() {
 
@@ -238,6 +277,10 @@ class LoginControllerTest {
                 resultado
         );
     }
+
+    // =====================================================
+    // ROL NO CONFIGURADO
+    // =====================================================
 
     @Test
     void debeRechazarRolNoConfigurado() {
@@ -265,6 +308,10 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // ADMINISTRADOR SIN SESIÓN
+    // =====================================================
+
     @Test
     void administradorSinSesionDebeVolverAlLogin() {
 
@@ -282,6 +329,10 @@ class LoginControllerTest {
                 resultado
         );
     }
+
+    // =====================================================
+    // ADMINISTRADOR CON SESIÓN
+    // =====================================================
 
     @Test
     void administradorConSesionDebeMostrarPanel() {
@@ -306,6 +357,10 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // EMPLEADO SIN SESIÓN
+    // =====================================================
+
     @Test
     void empleadoSinSesionDebeVolverAlLogin() {
 
@@ -324,13 +379,17 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // EMPLEADO CON SESIÓN
+    // =====================================================
+
     @Test
     void empleadoConSesionDebeMostrarPanel() {
 
+        List<Usuario> usuarios = List.of(usuario);
+
         when(session.getAttribute("usuario"))
                 .thenReturn(usuario);
-
-        List<Usuario> usuarios = List.of(usuario);
 
         when(usuarioService.listarUsuarios())
                 .thenReturn(usuarios);
@@ -357,6 +416,10 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // PROVEEDOR SIN SESIÓN
+    // =====================================================
+
     @Test
     void proveedorSinSesionDebeVolverAlLogin() {
 
@@ -374,6 +437,10 @@ class LoginControllerTest {
                 resultado
         );
     }
+
+    // =====================================================
+    // PROVEEDOR CON SESIÓN
+    // =====================================================
 
     @Test
     void proveedorConSesionDebeMostrarPanel() {
@@ -398,6 +465,10 @@ class LoginControllerTest {
         );
     }
 
+    // =====================================================
+    // CLIENTE SIN SESIÓN
+    // =====================================================
+
     @Test
     void clienteSinSesionDebeVolverAlLogin() {
 
@@ -415,6 +486,10 @@ class LoginControllerTest {
                 resultado
         );
     }
+
+    // =====================================================
+    // CLIENTE CON SESIÓN
+    // =====================================================
 
     @Test
     void clienteConSesionDebeMostrarPanel() {
@@ -438,6 +513,10 @@ class LoginControllerTest {
                 usuario
         );
     }
+
+    // =====================================================
+    // CERRAR SESIÓN
+    // =====================================================
 
     @Test
     void cerrarSesionDebeInvalidarSesion() {
