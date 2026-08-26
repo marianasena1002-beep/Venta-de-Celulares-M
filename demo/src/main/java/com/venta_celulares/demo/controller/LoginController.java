@@ -24,6 +24,7 @@ public class LoginController {
     private static final String LOGIN = "login";
     private static final String ERROR = "error";
     private static final String USUARIO = "usuario";
+    private static final String REDIRECT_LOGIN = "redirect:/login";
 
     @GetMapping("/")
     public String inicio() {
@@ -105,7 +106,7 @@ public class LoginController {
                 (Usuario) session.getAttribute(USUARIO);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return REDIRECT_LOGIN;
         }
 
         model.addAttribute(USUARIO, usuario);
@@ -122,7 +123,7 @@ public class LoginController {
                 (Usuario) session.getAttribute(USUARIO);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return REDIRECT_LOGIN;
         }
 
         model.addAttribute(USUARIO, usuario);
@@ -144,7 +145,7 @@ public class LoginController {
                 (Usuario) session.getAttribute(USUARIO);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return REDIRECT_LOGIN;
         }
 
         model.addAttribute(USUARIO, usuario);
@@ -161,7 +162,7 @@ public class LoginController {
                 (Usuario) session.getAttribute(USUARIO);
 
         if (usuario == null) {
-            return "redirect:/login";
+            return REDIRECT_LOGIN;
         }
 
         model.addAttribute(USUARIO, usuario);
@@ -174,6 +175,6 @@ public class LoginController {
 
         session.invalidate();
 
-        return "redirect:/login";
+        return REDIRECT_LOGIN;
     }
 }
