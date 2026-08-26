@@ -6,10 +6,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "PERSONA")
 @IdClass(PersonaId.class)
-public class Usuario {
+public class Usuario implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "TIPO_DOCUMENTO_COD_TDOC")
