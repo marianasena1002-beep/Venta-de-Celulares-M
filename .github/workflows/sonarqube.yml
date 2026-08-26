@@ -1,13 +1,15 @@
-name: Análisis de SonarQube
+name: SonarQube analysis
 
 on:
   push:
     branches:
       - main
+      - principal
 
   pull_request:
     branches:
       - main
+      - principal
 
   workflow_dispatch:
 
@@ -16,38 +18,40 @@ permissions:
   pull-requests: read
 
 jobs:
-  analysis:
+  Analysis:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: demo
+
     steps:
-      - name: Consulta el código fuente
+      # 1. Descargar el código
+      - name: Checkout source code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Configurar Java
-        uses: actions/setup-java@v4
+      # 2. Configurar Java
+      - name: Set up Java
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '20'
           cache: maven
 
-      - name: Ejecutar pruebas y generar cobertura
-        working-directory: demo
-        run: mvn clean test
+      # 3. Ejecutar pruebas y generar reporte JaCoCo
+      - name: Run tests and generate coverage
+        run: mvn clean verify
 
-      - name: Analizar con SonarQube
-        uses: SonarSource/sonarqube-scan-action@v6
+      # 4. Analizar con SonarCloud
+      - name: SonarQube analysis
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
-
-        with:
-          projectBaseDir: demo
-          args: >
-            -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M
-            -Dsonar.organization=marianasena1002-beep
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.java.libraries=target/dependency/*.jar
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=marianasena1002-beep_Venta-de-Celulares-M \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
